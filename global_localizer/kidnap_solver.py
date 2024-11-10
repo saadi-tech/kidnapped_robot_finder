@@ -132,11 +132,11 @@ def solve_kidnap(orig_scan_img, map_image, min_distance, max_iterations = 30, st
     end_time = time.perf_counter()
     print("\n\n\n-------------------------\n\n\n")
     x, y = best_coord
-    print("Highest F1 score: ", max_accuracy)
+    print("Highest F1 score (x100): ", max_accuracy)
     print("Time taken: ms", (end_time - st_time) * 1000)
     cv2.circle(candidate_area, (y, x), 5, (0, 255, 0), -1)
-    print("Old robot coord: ", robot_coord)
-    print("TF robot: ", best_tf_robot)
+    #print("Old robot coord: ", robot_coord)
+    #print("TF robot: ", best_tf_robot)
     cv2.circle(best_overlay, (int(best_tf_robot[0]), int(best_tf_robot[1])), 4, (255, 0, 0), -1)
 
     sorted_candidates = sorted(all_candidates, key = lambda x:x[0])
@@ -146,7 +146,7 @@ def solve_kidnap(orig_scan_img, map_image, min_distance, max_iterations = 30, st
     vector_length = 20 #px
 
 
-    print("BEst scan center: ", best_scan_center)
+    #print("BEst scan center: ", best_scan_center)
     print("Robot on map: ", robot_on_map)
     print("Theta in degrees: ", best_theta_degrees)
 
@@ -159,12 +159,12 @@ def solve_kidnap(orig_scan_img, map_image, min_distance, max_iterations = 30, st
     robot_in_map_pixels[1] = map_image.shape[0] - robot_in_map_pixels[1] #flip y axis
     robot_in_map_meters = robot_in_map_pixels * map_resolution + map_origin
     robot_angle_in_map = math.radians(-best_theta_degrees)
+
+    print("----------------------------")
     print("Robot in map meters: ", robot_in_map_meters)
     print("Robot theta (on map) in degrees: ", math.degrees(robot_angle_in_map))
 
-    print("----------------------------")
-    print("All sorted candidates:")
-    print(sorted_candidates)
+    
 
     # Display the scan_image, tf_orig_scan, and candidate_area images in a single Plt window side by side
     fig, axs = plt.subplots(1, 6, figsize=(12, 4))

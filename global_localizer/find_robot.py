@@ -8,6 +8,9 @@ import math
 import numpy as np
 import cv2
 from global_localizer import kidnap_solver as ks
+from ament_index_python.packages import get_package_share_directory
+from pathlib import Path
+import yaml
 
 class LaserScanFilter(Node):
 
@@ -21,6 +24,9 @@ class LaserScanFilter(Node):
 
         self.min_distance = None
         self.scan_image = None
+        self.map_image = None
+
+        self.load_map_file()
 
         self.subscription = self.create_subscription(
             LaserScan,
@@ -57,30 +63,41 @@ class LaserScanFilter(Node):
 
         self.scan_image = image.copy()
         self.min_distance = min_distance
-        
+
+    def load_map_file(self):
+        package_share_directory = get_package_share_directory('global_localizer')
+        yaml_file_path = Path(package_share_directory) / 'config' / 'config.yaml'
+
+        try:
+            with open(yaml_file_path, 'r') as file:
+                config_data = yaml.safe_load(file)
+                map_file_path = config_data['map_file_path']
+                self.get_logger().info(f"Map file path: {map_file_path}")
+
+                if Path(map_file_path).exists():
+                    map_image = cv2.imread(map_file_path, cv2.IMREAD_GRAYSCALE)
+                    self.map_image = map_image
+                else:
+                    self.get_logger().error(f"Map file not found: {map_file_path}")
+                    exit()
+        except Exception as e:
+            self.get_logger().error(f"Error reading YAML file: {e}")
+            exit()
 
 
     def global_localization_callback(self, request, response):
         self.get_logger().info('Global Localization Service triggered.')
         if self.min_distance is not None:
             self.get_logger().info('Found last laser-scan data. Matching in progress....')
-            map_image = cv2.imread("/home/saad/pro_ws/src/global_localizer/map_image.png", cv2.IMREAD_GRAYSCALE)
-
+            
             # Solve the kidnap problem
-            ks.solve_kidnap(self.scan_image, map_image, self.min_distance)
+            ks.solve_kidnap(self.scan_image, self.map_image, self.min_distance)
         else:
             self.get_logger().error('No laser-scan data found. Please make-sure there are laser scans available, and retry.')
         return response
 
 def main(args=None):
     print("\n\n** Starting the localization service!!**\n\n")
-
-    timeout = 2 #secs
-    for i in range(timeout, 0, -1):
-        print(f"Starting in {i} seconds...")
-        time.sleep(1)
-
-
     rclpy.init(args=args)
     laser_scan_filter = LaserScanFilter()
     rclpy.spin(laser_scan_filter)
