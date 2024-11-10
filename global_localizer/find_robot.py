@@ -19,8 +19,6 @@ class LaserScanFilter(Node):
 
         self.max_range = 8.0  # max range of lidar in meters
         self.resolution = 0.05  # 5 cm per pixel
-        self.image_size = int((2 * self.max_range) / self.resolution)  # image width and height in pixels
-        self.origin_offset = int(self.max_range / self.resolution)  # origin offset in pixels
 
         self.min_distance = None
         self.scan_image = None
@@ -38,6 +36,9 @@ class LaserScanFilter(Node):
 
         self.load_parameters()
         self.load_map_file()
+
+        self.image_size = int((2 * self.max_range) / self.resolution)  # image width and height in pixels
+        self.origin_offset = int(self.max_range / self.resolution)  # origin offset in pixels
         
         self.subscription = self.create_subscription(
             LaserScan,
