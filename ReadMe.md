@@ -36,6 +36,7 @@ To use the Global Localizer package, follow these steps:
 4. The service would be ready, you can call the kidnap solving solution by: 'ros2 service call /global_localization_srv std_srvs/srv/Empty'
 5. It will run the iterations and find the best, probable position for the kidnapped robot. 
 
+[Watch the demo video](media/demo.webm)
 
 ## Contributing
 
