@@ -25,12 +25,23 @@ class LaserScanFilter(Node):
         self.min_distance = None
         self.scan_image = None
         self.map_image = None
+        self.config_data = None
 
+        self.scan_topic = "/scan" # default scan topic
+        self.map_file_path = ""
+
+        self.max_iterations = 30
+        self.stop_search_threshold_f1 = 50
+        
+        self.lidar_max_range = 8.0 
+        self.map_resolution = 0.05 # m/px
+
+        self.load_parameters()
         self.load_map_file()
-
+        
         self.subscription = self.create_subscription(
             LaserScan,
-            'scan',
+            self.scan_topic,
             self.scan_callback,
             10
         )
@@ -64,26 +75,44 @@ class LaserScanFilter(Node):
         self.scan_image = image.copy()
         self.min_distance = min_distance
 
-    def load_map_file(self):
+    def load_config_file(self):
         package_share_directory = get_package_share_directory('global_localizer')
         yaml_file_path = Path(package_share_directory) / 'config' / 'config.yaml'
-
         try:
             with open(yaml_file_path, 'r') as file:
-                config_data = yaml.safe_load(file)
-                map_file_path = config_data['map_file_path']
-                self.get_logger().info(f"Map file path: {map_file_path}")
-
-                if Path(map_file_path).exists():
-                    map_image = cv2.imread(map_file_path, cv2.IMREAD_GRAYSCALE)
-                    self.map_image = map_image
-                else:
-                    self.get_logger().error(f"Map file not found: {map_file_path}")
-                    exit()
+                self.config_data = yaml.safe_load(file)
         except Exception as e:
             self.get_logger().error(f"Error reading YAML file: {e}")
             exit()
 
+    def load_parameters(self):
+        self.load_config_file()
+        self.scan_topic = self.config_data['scan_topic']
+        self.map_file_path = self.config_data['map_file_path']
+
+        self.max_iterations = self.config_data['max_iterations']
+        self.stop_search_threshold_f1 = self.config_data['stop_search_threshold_f1']
+
+        self.lidar_max_range = self.config_data['lidar_max_range']
+        self.map_resolution = self.config_data['map_resolution']
+
+        self.get_logger().info(f"Scan topic: {self.scan_topic}")
+        self.get_logger().info(f"Map file path: {self.map_file_path}")
+        self.get_logger().info(f"Max iterations: {self.max_iterations}")
+        self.get_logger().info(f"Stop search threshold: {self.stop_search_threshold_f1}")
+        self.get_logger().info(f"Lidar max range: {self.lidar_max_range}")
+        self.get_logger().info(f"Map resolution: {self.map_resolution}")
+
+    def load_map_file(self):
+        map_file_path = self.map_file_path
+        self.get_logger().info(f"Map file path: {map_file_path}")
+
+        if Path(map_file_path).exists():
+            map_image = cv2.imread(map_file_path, cv2.IMREAD_GRAYSCALE)
+            self.map_image = map_image
+        else:
+            self.get_logger().error(f"Map file not found: {map_file_path}")
+            exit()
 
     def global_localization_callback(self, request, response):
         self.get_logger().info('Global Localization Service triggered.')
@@ -91,7 +120,9 @@ class LaserScanFilter(Node):
             self.get_logger().info('Found last laser-scan data. Matching in progress....')
             
             # Solve the kidnap problem
-            ks.solve_kidnap(self.scan_image, self.map_image, self.min_distance)
+            ks.solve_kidnap(self.scan_image, self.map_image, self.min_distance, map_resolution = self.map_resolution,\
+                             max_iterations = self.max_iterations, stop_search_threshold = self.stop_search_threshold_f1\
+                                , lidar_range = self.lidar_max_range)
         else:
             self.get_logger().error('No laser-scan data found. Please make-sure there are laser scans available, and retry.')
         return response

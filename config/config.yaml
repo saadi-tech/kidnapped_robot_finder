@@ -1,1 +1,6 @@
 map_file_path: "/home/saad/pro_ws/src/global_localizer/map_image.png"
+scan_topic: "/scan"
+map_resolution: 0.05
+lidar_max_range: 8.0
+max_iterations: 30
+stop_search_threshold_f1: 50

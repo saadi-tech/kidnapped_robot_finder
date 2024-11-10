@@ -16,7 +16,7 @@ This package contains works on an innovative approach to estimate the position o
 - Find the best 'aligning' simulated scan with the original scan using F1 score metric.
 - Use the best aligned simulated scan to then calculate the position of the robot on the map.
 
-Currently, the output is Uni-modal (it will give the highest probable position of the robot). But I will further make it multi-modal (to give multiple position estimates if there are similar locations in the map.)
+Currently, the output is **Uni-modal** (it will give the highest probable position of the robot). But I will further make it **multi-modal** (to give multiple position estimates if there are similar locations in the map.)
 
 Instead of taking random points on the map (as candidate positions), this package uses an optimized approach. It gets the distance to the closest obstacle from the lidar scan, and selects ONLY the area on the map which has almost similar distance to nearest obstacle pixels. Then we select the candidates by adaptive randomized selection. It helps us to reduce the search area by a big factor, so we get very good results in very few iterations.
 
@@ -39,5 +39,5 @@ To use the Global Localizer package, follow these steps:
 
 ## Contributing
 
-Contributions to the Global Localizer package are welcome! If you encounter any issues or have suggestions for improvements, please open an issue on the [GitHub repository](https://github.com/saadi-tech/global_localizer/issues).
+Contributions to the Global Localizer package are welcome! If you encounter any issues or have suggestions for improvements, please open an issue on the [GitHub repository](https://github.com/saadi-tech/kidnapped_robot_finder).
 

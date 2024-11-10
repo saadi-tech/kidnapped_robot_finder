@@ -58,18 +58,15 @@ def get_f1_score(reference_img, tf_img):
     return f1_score * 100
 
 
-def solve_kidnap(orig_scan_img, map_image, min_distance, max_iterations = 30, stop_search_threshold = 50):
+def solve_kidnap(orig_scan_img, map_image, min_distance, map_resolution = 0.05, max_iterations = 30, stop_search_threshold = 50, lidar_range = 8.0):
     orig_scan_img = cv2.flip(orig_scan_img, 1)
 
     robot_coord = [orig_scan_img.shape[1]//2, orig_scan_img.shape[0]//2]
     distance =  min_distance
-    #robot_coord[1] = orig_scan_img.shape[0] - robot_coord[1]
-
-
 
     st_time = time.perf_counter()
 
-    candidate_area = dt.get_distance_transform(map_image, distance) #Rgb image, which red area where the robot can lie only.
+    candidate_area = dt.get_distance_transform(map_image, distance, map_resolution = map_resolution) #Rgb image, which red area where the robot can lie only.
     # Generate random coordinates within the red regions of the candidate area
     red_pixels = np.where(candidate_area[:,:,0] == 255)  # Find the indices of red pixels
     num_red_pixels = len(red_pixels[0])  # Get the number of red pixels
@@ -106,7 +103,7 @@ def solve_kidnap(orig_scan_img, map_image, min_distance, max_iterations = 30, st
         print("Iteration: ", iters,  "/" , len(random_coords))
         x, y = coord
         # Do something with the coordinates
-        scan_image = pf.get_scan_image(map_image.copy(), [y, x])
+        scan_image = pf.get_scan_image(map_image.copy(), [y, x], map_resolution = map_resolution, max_range = 8)
 
 
         tf_orig_scan, overlay_img, tf_robot_pose, theta_degrees = fm.do_matching(orig_scan_img, scan_image, robot_pose = robot_coord)

@@ -5,7 +5,7 @@ from global_localizer import scanner_simulator as s_sim
 map_resolution = 0.05 #m/pixel
 max_range = 8 #m
 
-def get_scan_image(map_image_bw, position):
+def get_scan_image(map_image_bw, position, map_resolution = map_resolution, max_range = max_range):
     
     canvas = cv2.cvtColor(map_image_bw.copy(), cv2.COLOR_GRAY2BGR)
     map_image_bw = map_image_bw
