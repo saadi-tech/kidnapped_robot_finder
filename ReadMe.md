@@ -2,6 +2,8 @@
 
 This ROS2 package is dedicated to estimate the position of a 'kidnapped' mobile robot in a given map. This package will find estimate the robot's current position in the map, by matching the features in the lidar-scan with the map's features. The output of this package can be used to give initial pose estimate to other localizers like AMCL.
 
+![GIF File 1](/media/output1.gif)
+
  Assuming the robot is equipped with a 2d Lidar scanner, this package takes following inputs:
 - Map image (.png).
 - Current lidar scan (from a published topic: "/scan" by default)
@@ -36,7 +38,24 @@ To use the Global Localizer package, follow these steps:
 4. The service would be ready, you can call the kidnap solving solution by: 'ros2 service call /global_localization_srv std_srvs/srv/Empty'
 5. It will run the iterations and find the best, probable position for the kidnapped robot. 
 
-[Watch the demo video](media/demo.webm)
+## Demo
+
+Here are two GIF files demonstrating the Global Localizer package in action:
+
+![demo-1](/media/output2.gif)
+
+![demo-2](/media/output3.gif)
+
+## Closer look
+
+Here is a closer look:
+
+### Robot Position
+![Robot-Position](/media/screenshots/position_2.png)
+
+### Estimated Pose
+![Esimtated Pose](/media/screenshots/result_2.png)
+
 
 ## Contributing
 
