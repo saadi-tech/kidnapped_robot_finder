@@ -70,6 +70,8 @@ def solve_kidnap(orig_scan_img, map_image, min_distance, map_resolution = 0.05, 
     # Generate random coordinates within the red regions of the candidate area
     red_pixels = np.where(candidate_area[:,:,0] == 255)  # Find the indices of red pixels
     num_red_pixels = len(red_pixels[0])  # Get the number of red pixels
+    
+    candidate_area_to_show = candidate_area.copy()
 
     random_coords = []
     for _ in range(max_iterations):
@@ -79,8 +81,10 @@ def solve_kidnap(orig_scan_img, map_image, min_distance, map_resolution = 0.05, 
             x = red_pixels[0][index]  # Get the x-coordinate of the randomly selected red pixel
             y = red_pixels[1][index]  # Get the y-coordinate of the randomly selected red pixel
             random_coords.append((x, y))
+            cv2.circle(candidate_area_to_show, (y, x), 3, (0, 255, 0), -1) 
 
-            cv2.circle(candidate_area, (y, x), 20, (0, 255, 0), -1) #remove that area from the candidate area
+
+            cv2.circle(candidate_area, (y, x), 20, (0, 255, 0), -1) # Draw GREEN color, so next random selection should not occur from here
             red_pixels = np.where(candidate_area[:,:,0] == 255)  # Find the indices of red pixels
             num_red_pixels = len(red_pixels[0])  # Get the number of red pixels
 
@@ -131,7 +135,7 @@ def solve_kidnap(orig_scan_img, map_image, min_distance, map_resolution = 0.05, 
     x, y = best_coord
     print("Highest F1 score (x100): ", max_accuracy)
     print("Time taken: ms", (end_time - st_time) * 1000)
-    cv2.circle(candidate_area, (y, x), 5, (0, 255, 0), -1)
+    #cv2.circle(candidate_area, (y, x), 5, (0, 255, 0), -1)
     #print("Old robot coord: ", robot_coord)
     #print("TF robot: ", best_tf_robot)
     cv2.circle(best_overlay, (int(best_tf_robot[0]), int(best_tf_robot[1])), 4, (255, 0, 0), -1)
@@ -187,8 +191,8 @@ def solve_kidnap(orig_scan_img, map_image, min_distance, map_resolution = 0.05, 
     axs[3].axis('off')
 
     # Plot the candidate_area
-    axs[4].imshow(candidate_area, cmap='gray')
-    axs[4].set_title('Candidate Area (Red)')
+    axs[4].imshow(candidate_area_to_show, cmap='gray')
+    axs[4].set_title('Candidate Area(Red), samples(Green)')
     axs[4].axis('off')
 
     # Convert map_image to BGR

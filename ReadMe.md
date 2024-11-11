@@ -40,8 +40,6 @@ To use the Global Localizer package, follow these steps:
 
 ## Demo
 
-Here are two GIF files demonstrating the Global Localizer package in action:
-
 ![demo-1](/media/output2.gif)
 
 ![demo-2](/media/output3.gif)
