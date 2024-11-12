@@ -101,20 +101,34 @@ def solve_kidnap(orig_scan_img, map_image, min_distance, map_resolution = 0.05, 
     all_candidates = []
 
     iters = 0
+
+    sim_scan_time, matching_time, scoring_time = 0, 0, 0
     # Use the random coordinates for further processing
     for coord in random_coords:
         iters += 1
         print("Iteration: ", iters,  "/" , len(random_coords))
         x, y = coord
         # Do something with the coordinates
+        s = time.perf_counter()
         scan_image = pf.get_scan_image(map_image.copy(), [y, x], map_resolution = map_resolution, max_range = 8)
+        e = time.perf_counter()
+        time_taken = (e - s) * 1000
+        sim_scan_time += time_taken
 
-
+        s = time.perf_counter()
         tf_orig_scan, overlay_img, tf_robot_pose, theta_degrees = fm.do_matching(orig_scan_img, scan_image, robot_pose = robot_coord)
+        e = time.perf_counter()
+        time_taken = (e - s) * 1000
+        matching_time += time_taken
         if tf_orig_scan is None:
             continue
-
+        
+        s = time.perf_counter()
         percentage = get_f1_score(scan_image, tf_orig_scan)
+        e = time.perf_counter()
+        time_taken = (e - s) * 1000
+        scoring_time += time_taken
+
         all_candidates.append([percentage, y, x])
         print("F1 Score: ", percentage)
         if percentage > max_accuracy:
@@ -135,9 +149,20 @@ def solve_kidnap(orig_scan_img, map_image, min_distance, map_resolution = 0.05, 
     x, y = best_coord
     print("Highest F1 score (x100): ", max_accuracy)
     print("Time taken: ms", (end_time - st_time) * 1000)
-    #cv2.circle(candidate_area, (y, x), 5, (0, 255, 0), -1)
-    #print("Old robot coord: ", robot_coord)
-    #print("TF robot: ", best_tf_robot)
+    total_time = (end_time - st_time) * 1000
+
+    # print("Sim scan time: ", sim_scan_time, " Percentage: ", (sim_scan_time / total_time) * 100)
+    # print("Matching time: ", matching_time, " Percentage: ", (matching_time / total_time) * 100)
+    # print("Scoring time: ", scoring_time, " Percentage: ", (scoring_time / total_time) * 100)
+
+    '''
+    Time taken: ms 869.0479400002005
+    Sim scan time:  694.8894949991882      Percentage:  79.95985756539827    (It can be improved!!!!)
+    Matching time:  159.97490800145897     Percentage:  18.408064807267372
+    Scoring time:  1.8264749996887986      Percentage:  0.2101696483727212
+    '''
+
+
     cv2.circle(best_overlay, (int(best_tf_robot[0]), int(best_tf_robot[1])), 4, (255, 0, 0), -1)
 
     sorted_candidates = sorted(all_candidates, key = lambda x:x[0])
